@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * 时间控制工具类
  */
 public class TimeUtil {
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_FORMAT = "yyyyMMdd";
 
     private static final String TIME_FORMAT = "HH:mm:ss";
 
@@ -148,7 +148,7 @@ public class TimeUtil {
         String realtime = null;
         AtomicReference<Calendar> calendar;
         calendar = new AtomicReference<>(Calendar.getInstance());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT+" "+TIME_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"+" "+TIME_FORMAT);
         try {
             Date date = dateFormat.parse(dateTime);
             calendar.get().setTime(date);

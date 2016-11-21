@@ -6,10 +6,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
@@ -41,20 +38,22 @@ public class LogAnalyserRunner implements Tool {
 
     @Override
     public void setConf(Configuration configuration) {
-
+//        configuration.set("fs.defaultFS", "hdfs://hadoo-01:8020");
+//        configuration.set("yarn.resourcemanager.hostname","192.168.4.3");
     }
 
     @Override
     public int run(String[] strings) throws Exception {
         Configuration conf = this.getConf();
+
         String inputArgs[] = new GenericOptionsParser(conf, strings).getRemainingArgs();
-        if (inputArgs.length != 2) {
-            System.err.println("\"Usage:<in><out1>/n\"");
+        if (inputArgs.length != 3) {
+            System.err.println("\"Usage:<in><out1><qq.wry>/n\"");
             System.exit(2);
         }
         String inputPath = inputArgs[0];
         String outputPath = inputArgs[1];
-//        String ipDatFile = inputArgs[2];
+        String ipDatFile = inputArgs[2];
         conf.set(LogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
         conf.set("inputPath_directorry_name", inputPath);
 
@@ -65,7 +64,7 @@ public class LogAnalyserRunner implements Tool {
         job1.setJarByClass(LogAnalyserRunner.class);
         job1.setMapperClass(LogAnalyserMapper.class);
         job1.setReducerClass(LogAnalyserReducer.class);
-//        job1.addCacheFile(new URI(ipDatFile));
+        job1.addCacheFile(new URI(ipDatFile));
 
         job1.setMapOutputKeyClass(DefinedKey.class);
         job1.setMapOutputValueClass(Text.class);

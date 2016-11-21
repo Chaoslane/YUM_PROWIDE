@@ -5,7 +5,9 @@ import com.udbac.hadoop.util.SplitValueBuilder;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by chaoslane@126.com on 2016/7/25.
@@ -25,7 +27,7 @@ public class WideTable {
     private String wt_cart;
     private String wt_suc;
     private String wt_pay;
-    private String wt_event;
+    //时长
     private BigDecimal duration = BigDecimal.ZERO;
 
     /**
@@ -37,10 +39,10 @@ public class WideTable {
     public static WideTable parse(String mapinput) {
         WideTable wideTable = null;
         String[] tokens = mapinput.split("\\|");
-        if (tokens.length == 13) {
+        if (tokens.length == 12) {
             wideTable = new WideTable();
             Field[] field = wideTable.getClass().getDeclaredFields();
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < 12; i++) {
                 try {
                     field[i].set(wideTable, tokens[i]);
                 } catch (IllegalAccessException e) {
@@ -150,14 +152,6 @@ public class WideTable {
         this.wt_pay = String.valueOf(wt_pay);
     }
 
-    public String getWt_event() {
-        return wt_event;
-    }
-
-    public void setWt_event(String wt_event) {
-        this.wt_event = wt_event;
-    }
-
     public BigDecimal getDuration() {
         return duration;
     }
@@ -168,6 +162,7 @@ public class WideTable {
 
     @Override
     public String toString() {
+
         SplitValueBuilder svb = new SplitValueBuilder();
         svb.add(deviceId).add(date_time.split(" ")[0])
                 .add(date_time.split(" ")[1])
@@ -181,7 +176,6 @@ public class WideTable {
                 .add(wt_cart)
                 .add(wt_suc)
                 .add(wt_pay)
-                .add(wt_event)
                 .add(duration);
         return svb.build();
     }

@@ -49,14 +49,14 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, DefinedKey, Te
                 return;
             //切割字符串 获取 date_time 进行+8的操作
             String[] tokens = value.toString().split("\\|");
-            String date_time = TimeUtil.handleTime(tokens[1]);
+            String date_time = TimeUtil.handleTime(tokens[1]).replace("-","");
             //判断输入文件夹名 和 输入数据的日期是否相等
-            if (!inputPath.contains(date_time.substring(0,9)))
-                return;
+//            if (!inputPath.contains(date_time.substring(0,9)))
+//                return;
             DefinedKey definedKey = new DefinedKey();
             SplitValueBuilder svb = new SplitValueBuilder();
 
-            if (tokens.length==13) {
+            if (tokens.length==12) {
                 svb.add(tokens[0]).add(date_time);
                 for (int i = 2; i < tokens.length; i++) {
                     svb.add(tokens[i]);
@@ -67,6 +67,7 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, DefinedKey, Te
             }
             mapoutput.put(definedKey, new Text(svb.toString()));
         } catch (Exception e) {
+            e.printStackTrace();
             this.logger.error("处理SDCLOG出现异常，数据:" + value + e);
         }
     }

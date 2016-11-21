@@ -31,9 +31,9 @@ public class LogConstants {
      * 从宽表中获取的用户类型 为domain域名 转换为alias 方便存入表中
      */
     public enum UserDomain {
-        OUTTAKE("m.4008823823.com.cn", "outtake"),
-        SELFTAKE("order.kfc.com.cn", "selftake"),
-        MEMBERTAKE("mall.kfc.com.cn", "membertake");
+        OUTTAKE("m.4008823823.com.cn", "takeout"),
+        SELFTAKE("order.kfc.com.cn", "self"),
+        MEMBERTAKE("mall.kfc.com.cn", "member");
 
         public String domainName;
         public String alias;

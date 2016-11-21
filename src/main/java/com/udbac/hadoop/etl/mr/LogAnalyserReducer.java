@@ -36,7 +36,8 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
                  context.write(NullWritable.get(), new Text(entry.getKey() + "|" + entry.getValue().toString()));
             }
         } catch (Exception e) {
-            logger.error("session重建出现异常 deviceId:" + key.getDeviceId() + e);
+            e.printStackTrace();
+            logger.error("session重建出现异常");
         }
     }
 
@@ -55,6 +56,7 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
             String log = text.toString();
             String[] logSplits = log.split("\\|");
             cur = TimeUtil.parseStringDate2Long(logSplits[1]);
+
             //小于30分钟的 则进行时长叠加 && routeevent的合并（有为1，无为0）
             if (cur - last < LogConstants.HALFHOUR_OF_MILLISECONDS) {
                 tmp = cur - last;
