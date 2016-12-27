@@ -60,39 +60,4 @@ public class LogConstants {
             return alias;
         }
     }
-
-    /**
-     * 枚举类型 业务4 点击事件
-     */
-    public enum ClickEvent {
-        BANNER1("1","banner1"),
-        FIRSTPAGESEND("2","firstsend"),
-        SELFTAKEBUTTON("3","selfbutton"),
-        MEMBERBUTTON("4","membutton"),
-        HOMEPAGESEND("5","homesend");
-
-        public String eventURI;
-        public String alias;
-
-        ClickEvent(String eventURI, String alias) {
-            this.eventURI = eventURI;
-            this.alias = alias;
-        }
-
-        public String getClickEventType(String eventURI) {
-            for (ClickEvent clickEvent : values()) {
-                if (clickEvent.getEventURI().equals(eventURI)) {
-                    return clickEvent.getAlias();
-                }
-            }
-            return DEFAULT_VALUE;
-        }
-
-        public String getEventURI() {
-            return eventURI;
-        }
-        public String getAlias() {
-            return alias;
-        }
-    }
 }

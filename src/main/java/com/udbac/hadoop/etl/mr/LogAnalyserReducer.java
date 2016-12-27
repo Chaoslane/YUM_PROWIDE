@@ -4,7 +4,6 @@ import com.udbac.hadoop.common.DefinedKey;
 import com.udbac.hadoop.common.LogConstants;
 import com.udbac.hadoop.entity.WideTable;
 import com.udbac.hadoop.etl.util.IPSeekerExt;
-import com.udbac.hadoop.util.SplitValueBuilder;
 import com.udbac.hadoop.util.TimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.NullWritable;
@@ -15,7 +14,6 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,15 +23,14 @@ import java.util.UUID;
  */
 public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, Text> {
     private final Logger logger = Logger.getLogger(LogAnalyserReducer.class);
-    private static IPSeekerExt ipSeekerExt = new IPSeekerExt();
 
     @Override
     protected void reduce(DefinedKey key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
         try {
-            Map<String, WideTable> anVisit = getOneVisitMap(values);
+            Map<String, WideTable> anVisit = getOneVisitMap(key,values);
             for (Map.Entry<String, WideTable> entry : anVisit.entrySet()) {
-                 context.write(NullWritable.get(), new Text(entry.getKey() + "|" + entry.getValue().toString()));
+                 context.write(NullWritable.get(), new Text(entry.getKey() + "\t" + entry.getValue().toString()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,7 +43,7 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
      * @param values 即一根据 用户ID 分组的 value list
      * @return 一个或多个访次的map集合
      */
-    private static Map<String, WideTable> getOneVisitMap(Iterable<Text> values) {
+    private static Map<String, WideTable> getOneVisitMap(DefinedKey key, Iterable<Text> values) {
         long cur,tmp,last = 0 ;
         BigDecimal duration = null;
         WideTable wideTable = null;
@@ -54,24 +51,24 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
         Map<String, WideTable> oneVisit = new HashMap<>();
         for (Text text : values) {
             String log = text.toString();
-            String[] logSplits = log.split("\\|");
-            cur = TimeUtil.parseStringDate2Long(logSplits[1]);
+            String[] logSplits = log.split("\\t");
+            cur = TimeUtil.parseStringDate2Long(key.getTimeStr());
 
             //小于30分钟的 则进行时长叠加 && routeevent的合并（有为1，无为0）
             if (cur - last < LogConstants.HALFHOUR_OF_MILLISECONDS) {
                 tmp = cur - last;
                 duration = duration.add(BigDecimal.valueOf(tmp));
                 wideTable.setDuration(duration);
-                wideTable.setWt_login(wideTable.getWt_login() | Integer.valueOf(logSplits[6]));
-                wideTable.setWt_menu(wideTable.getWt_menu() | Integer.valueOf(logSplits[7]));
-                wideTable.setWt_user(wideTable.getWt_user() | Integer.valueOf(logSplits[8]));
-                wideTable.setWt_cart(wideTable.getWt_cart() | Integer.valueOf(logSplits[9]));
-                wideTable.setWt_suc(wideTable.getWt_suc() | Integer.valueOf(logSplits[10]));
-                wideTable.setWt_pay(wideTable.getWt_pay() | Integer.valueOf(logSplits[11]));
-            //大于30分钟的 则new一个新的对象，并放入到访次集合中
+                wideTable.setWt_login(wideTable.getWt_login() | Integer.valueOf(logSplits[3]));
+                wideTable.setWt_menu(wideTable.getWt_menu() | Integer.valueOf(logSplits[4]));
+                wideTable.setWt_user(wideTable.getWt_user() | Integer.valueOf(logSplits[5]));
+                wideTable.setWt_cart(wideTable.getWt_cart() | Integer.valueOf(logSplits[6]));
+                wideTable.setWt_suc(wideTable.getWt_suc() | Integer.valueOf(logSplits[7]));
+                wideTable.setWt_pay(wideTable.getWt_pay() | Integer.valueOf(logSplits[8]));
             } else {
+                //大于30分钟的 则new一个新的对象，并放入到访次集合中
                 duration = BigDecimal.ZERO;
-                wideTable = WideTable.parse(log);
+                wideTable = WideTable.parse(key.toString()+"\t"+log);
                 handleTab(wideTable);
                 oneVisit.put(UUID.randomUUID().toString().replace("-", ""), wideTable);
             }
@@ -82,14 +79,6 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
 
     //操作WideTable 进行一些解析的操作
     private static void handleTab(WideTable wideTable) {
-        //解析IP
-        String uip = wideTable.getDcssip();
-        if (StringUtils.isNotBlank(uip)) {
-            IPSeekerExt.RegionInfo info = ipSeekerExt.analyticIp(uip);
-            if (null != info) {
-                wideTable.setDcssip(info.getCountry() + "," + info.getProvince() + "," + info.getCity());
-            }
-        }
         //解析domain
         String domain = wideTable.getUser_domain();
         if (StringUtils.isNotBlank(domain)) {
@@ -97,13 +86,4 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
         }
     }
 
-//    private static void handleUserAgent(AnalysedLog analysedLog) {
-//        String csUserAgent = analysedLog.getCsUserAgent();
-//        if (StringUtils.isNotBlank(csUserAgent)) {
-//            UserAgentUtil.UserAgentInfo info = UserAgentUtil.analyticUserAgent(csUserAgent);
-//            if (info != null) {
-//                analysedLog.setCsUserAgent(info.toString());
-//            }
-//        }
-//    }
 }

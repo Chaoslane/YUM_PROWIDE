@@ -28,7 +28,7 @@ public class DefinedComparator extends WritableComparator {
             return keyOne.getDeviceId().compareTo(keyOther.getDeviceId());
         } else {
             logger.debug("---------退出自定义排序2---------");
-            return Long.compare(keyOne.getTimeStr(), keyOther.getTimeStr());
+            return keyOne.getTimeStr().compareTo(keyOther.getTimeStr());
         }
 
     }

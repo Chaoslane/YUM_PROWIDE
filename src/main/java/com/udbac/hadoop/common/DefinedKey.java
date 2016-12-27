@@ -16,13 +16,13 @@ import java.io.IOException;
 public class DefinedKey implements WritableComparable<DefinedKey> {
     private static final Logger logger = Logger.getLogger(DefinedKey.class);
     private String deviceId;
-    private long timeStr;
+    private String timeStr;
 
     public DefinedKey() {
         super();
     }
 
-    public DefinedKey(String deviceId, long timeStr) {
+    public DefinedKey(String deviceId, String timeStr) {
         super();
         this.deviceId = deviceId;
         this.timeStr = timeStr;
@@ -36,14 +36,14 @@ public class DefinedKey implements WritableComparable<DefinedKey> {
     @Override
     public void readFields(DataInput in) throws IOException {
         deviceId = in.readUTF();
-        timeStr = in.readLong();
+        timeStr = in.readUTF();
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
         if (!out.equals(null)) {
             out.writeUTF(deviceId);
-            out.writeLong(timeStr);
+            out.writeUTF(timeStr);
         }
     }
 
@@ -55,11 +55,16 @@ public class DefinedKey implements WritableComparable<DefinedKey> {
         this.deviceId = deviceId;
     }
 
-    public long getTimeStr() {
+    public String getTimeStr() {
         return timeStr;
     }
 
-    public void setTimeStr(long timeStr) {
+    public void setTimeStr(String timeStr) {
         this.timeStr = timeStr;
+    }
+
+    @Override
+    public String toString() {
+        return deviceId+"\t"+timeStr;
     }
 }

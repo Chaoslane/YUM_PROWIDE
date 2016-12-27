@@ -1,5 +1,6 @@
 package com.udbac.hadoop.entity;
 
+import com.udbac.hadoop.common.DefinedKey;
 import com.udbac.hadoop.util.SplitValueBuilder;
 
 import java.lang.reflect.Field;
@@ -16,7 +17,6 @@ import java.util.Set;
 public class WideTable {
     private String deviceId;
     private String date_time;
-    private String dcssip;
     private String brand_new_user;//新老公户
     private String user_domain;//用户类型
     private String spreadid;//app下载渠道
@@ -38,11 +38,11 @@ public class WideTable {
      */
     public static WideTable parse(String mapinput) {
         WideTable wideTable = null;
-        String[] tokens = mapinput.split("\\|");
-        if (tokens.length == 12) {
+        String[] tokens = mapinput.split("\\t");
+        if (tokens.length == 11) {
             wideTable = new WideTable();
             Field[] field = wideTable.getClass().getDeclaredFields();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < tokens.length; i++) {
                 try {
                     field[i].set(wideTable, tokens[i]);
                 } catch (IllegalAccessException e) {
@@ -69,14 +69,6 @@ public class WideTable {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
-    }
-
-    public String getDcssip() {
-        return dcssip;
-    }
-
-    public void setDcssip(String dcssip) {
-        this.dcssip = dcssip;
     }
 
     public String getBrand_new_user() {
@@ -166,7 +158,6 @@ public class WideTable {
         SplitValueBuilder svb = new SplitValueBuilder();
         svb.add(deviceId).add(date_time.split(" ")[0])
                 .add(date_time.split(" ")[1])
-                .add(dcssip)
                 .add(brand_new_user)
                 .add(user_domain)
                 .add(spreadid)

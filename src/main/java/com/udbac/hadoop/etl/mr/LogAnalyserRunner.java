@@ -47,24 +47,21 @@ public class LogAnalyserRunner implements Tool {
         Configuration conf = this.getConf();
 
         String inputArgs[] = new GenericOptionsParser(conf, strings).getRemainingArgs();
-        if (inputArgs.length != 3) {
-            System.err.println("\"Usage:<in><out1><qq.wry>/n\"");
+        if (inputArgs.length != 2) {
+            System.err.println("\"Usage:<inputPath><outputPath>/n\"");
             System.exit(2);
         }
         String inputPath = inputArgs[0];
         String outputPath = inputArgs[1];
-        String ipDatFile = inputArgs[2];
-        conf.set(LogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
-        conf.set("inputPath_directorry_name", inputPath);
+//        conf.set(LogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
 
-        Job job1 = Job.getInstance(conf, "LogAnalyserMR");
+        Job job1 = Job.getInstance(conf, "WideTableMR");
         TextInputFormat.addInputPath(job1, new Path(inputPath));
         TextOutputFormat.setOutputPath(job1, new Path(outputPath));
 
         job1.setJarByClass(LogAnalyserRunner.class);
         job1.setMapperClass(LogAnalyserMapper.class);
         job1.setReducerClass(LogAnalyserReducer.class);
-        job1.addCacheFile(new URI(ipDatFile));
 
         job1.setMapOutputKeyClass(DefinedKey.class);
         job1.setMapOutputValueClass(Text.class);
