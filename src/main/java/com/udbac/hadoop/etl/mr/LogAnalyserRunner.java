@@ -53,7 +53,6 @@ public class LogAnalyserRunner implements Tool {
         }
         String inputPath = inputArgs[0];
         String outputPath = inputArgs[1];
-//        conf.set(LogConstants.RUNNING_DATE_PARAMES, TimeUtil.getYesterday());
 
         Job job1 = Job.getInstance(conf, "WideTableMR");
         TextInputFormat.addInputPath(job1, new Path(inputPath));

@@ -1,6 +1,7 @@
 package com.udbac.hadoop.etl.mr;
 
 import com.udbac.hadoop.common.DefinedKey;
+import com.udbac.hadoop.common.LogConstants;
 import com.udbac.hadoop.util.SplitValueBuilder;
 import com.udbac.hadoop.util.TimeUtil;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +39,7 @@ public class LogAnalyserMapper extends Mapper<LongWritable, Text, DefinedKey, Te
             if (value.getLength()==0)
                 return;
             //切割字符串 获取 date_time 进行+8的操作
-            String[] tokens = StringUtils.split(value.toString(),"\t");
+            String[] tokens = StringUtils.split(value.toString(), LogConstants.LINE_SEPARTIOR);
             tokens[1] = TimeUtil.handleTime(tokens[1]).replace("-","");
 
             DefinedKey definedKey = new DefinedKey();

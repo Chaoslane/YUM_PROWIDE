@@ -24,7 +24,7 @@ public class LogConstants {
     /**
      * 日志分隔符
      */
-    public static final String LOG_SEPARTIOR = " ";
+    public static final String LINE_SEPARTIOR = "\t";
 
     /**
      * 枚举类

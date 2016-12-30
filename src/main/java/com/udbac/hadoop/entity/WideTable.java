@@ -156,8 +156,8 @@ public class WideTable {
     public String toString() {
 
         SplitValueBuilder svb = new SplitValueBuilder();
-        svb.add(deviceId).add(date_time.split(" ")[0])
-                .add(date_time.split(" ")[1])
+        svb.add(deviceId)
+                .add(date_time)
                 .add(brand_new_user)
                 .add(user_domain)
                 .add(spreadid)

@@ -1,10 +1,12 @@
 package com.udbac.hadoop.util;
 
+import com.udbac.hadoop.common.LogConstants;
+
 /**
  * Created by root on 2016/7/13.
  */
 public class SplitValueBuilder {
-    private String split = "\t";
+    private String split = LogConstants.LINE_SEPARTIOR;
     private StringBuilder sb = new StringBuilder();
 
     public SplitValueBuilder() {

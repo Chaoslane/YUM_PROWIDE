@@ -3,7 +3,6 @@ package com.udbac.hadoop.etl.mr;
 import com.udbac.hadoop.common.DefinedKey;
 import com.udbac.hadoop.common.LogConstants;
 import com.udbac.hadoop.entity.WideTable;
-import com.udbac.hadoop.etl.util.IPSeekerExt;
 import com.udbac.hadoop.util.TimeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.NullWritable;
@@ -30,7 +29,7 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
         try {
             Map<String, WideTable> anVisit = getOneVisitMap(key,values);
             for (Map.Entry<String, WideTable> entry : anVisit.entrySet()) {
-                 context.write(NullWritable.get(), new Text(entry.getKey() + "\t" + entry.getValue().toString()));
+                 context.write(NullWritable.get(), new Text(entry.getKey() + LogConstants.LINE_SEPARTIOR + entry.getValue().toString()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,10 +49,8 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
         //每一个 Map.Entry KEY为生成的javaUUID VALUE为多个行为合并之后的一个访次的信息
         Map<String, WideTable> oneVisit = new HashMap<>();
         for (Text text : values) {
-            String log = text.toString();
-            String[] logSplits = log.split("\\t");
+            String[] logSplits = StringUtils.split(text.toString(), LogConstants.LINE_SEPARTIOR);
             cur = TimeUtil.parseStringDate2Long(key.getTimeStr());
-
             //小于30分钟的 则进行时长叠加 && routeevent的合并（有为1，无为0）
             if (cur - last < LogConstants.HALFHOUR_OF_MILLISECONDS) {
                 tmp = cur - last;
@@ -67,23 +64,13 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
                 wideTable.setWt_pay(wideTable.getWt_pay() | Integer.valueOf(logSplits[8]));
             } else {
                 //大于30分钟的 则new一个新的对象，并放入到访次集合中
+                wideTable = WideTable.parse(key.toString()+LogConstants.LINE_SEPARTIOR+text.toString());
                 duration = BigDecimal.ZERO;
-                wideTable = WideTable.parse(key.toString()+"\t"+log);
-                handleTab(wideTable);
                 oneVisit.put(UUID.randomUUID().toString().replace("-", ""), wideTable);
             }
             last = cur;
         }
         return oneVisit;
-    }
-
-    //操作WideTable 进行一些解析的操作
-    private static void handleTab(WideTable wideTable) {
-        //解析domain
-        String domain = wideTable.getUser_domain();
-        if (StringUtils.isNotBlank(domain)) {
-            wideTable.setUser_domain(LogConstants.UserDomain.getDomainType(domain));
-        }
     }
 
 }
