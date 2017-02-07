@@ -29,7 +29,7 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
         try {
             Map<String, WideTable> anVisit = getOneVisitMap(key,values);
             for (Map.Entry<String, WideTable> entry : anVisit.entrySet()) {
-                 context.write(NullWritable.get(), new Text(entry.getKey() + LogConstants.LINE_SEPARTIOR + entry.getValue().toString()));
+                 context.write(NullWritable.get(), new Text(entry.getKey() + LogConstants.SEPARTIOR_TAB + entry.getValue().toString()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,14 +42,14 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
      * @param values 即一根据 用户ID 分组的 value list
      * @return 一个或多个访次的map集合
      */
-    private static Map<String, WideTable> getOneVisitMap(DefinedKey key, Iterable<Text> values) {
+    private static Map<String, WideTable> getOneVisitMap(DefinedKey key, Iterable<Text> values) throws Exception{
         long cur,tmp,last = 0 ;
         BigDecimal duration = null;
         WideTable wideTable = null;
         //每一个 Map.Entry KEY为生成的javaUUID VALUE为多个行为合并之后的一个访次的信息
         Map<String, WideTable> oneVisit = new HashMap<>();
         for (Text text : values) {
-            String[] logSplits = StringUtils.split(text.toString(), LogConstants.LINE_SEPARTIOR);
+            String[] logSplits = StringUtils.split(text.toString(), LogConstants.SEPARTIOR_TAB);
             cur = TimeUtil.parseStringDate2Long(key.getTimeStr());
             //小于30分钟的 则进行时长叠加 && routeevent的合并（有为1，无为0）
             if (cur - last < LogConstants.HALFHOUR_OF_MILLISECONDS) {
@@ -64,7 +64,7 @@ public class LogAnalyserReducer extends Reducer<DefinedKey, Text, NullWritable, 
                 wideTable.setWt_pay(wideTable.getWt_pay() | Integer.valueOf(logSplits[8]));
             } else {
                 //大于30分钟的 则new一个新的对象，并放入到访次集合中
-                wideTable = WideTable.parse(key.toString()+LogConstants.LINE_SEPARTIOR+text.toString());
+                wideTable = WideTable.parse(key.toString()+LogConstants.SEPARTIOR_TAB+text.toString());
                 duration = BigDecimal.ZERO;
                 oneVisit.put(UUID.randomUUID().toString().replace("-", ""), wideTable);
             }

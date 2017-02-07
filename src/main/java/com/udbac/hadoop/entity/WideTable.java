@@ -2,6 +2,7 @@ package com.udbac.hadoop.entity;
 
 import com.udbac.hadoop.common.DefinedKey;
 import com.udbac.hadoop.util.SplitValueBuilder;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -157,10 +158,10 @@ public class WideTable {
 
         SplitValueBuilder svb = new SplitValueBuilder();
         svb.add(deviceId)
-                .add(date_time)
+                .add(date_time.replace("-",""))
                 .add(brand_new_user)
                 .add(user_domain)
-                .add(spreadid)
+                .add("null".equals(spreadid)?"\\N":spreadid)
                 .add(wt_login)
                 .add(wt_menu)
                 .add(wt_user)
